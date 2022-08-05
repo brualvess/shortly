@@ -1,5 +1,6 @@
 import { connection } from '../dbStrategy/postgres.js'
 import joi from 'joi'
+import dayjs from 'dayjs'
 import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
 export async function createUsers(req, res) {
@@ -42,6 +43,7 @@ export async function createUsers(req, res) {
 export async function loginUsers(req, res){
     const datas = req.body
     const token = uuid();
+    const expireToken = dayjs().add(30, 'day')
     const schemaUser = joi.object({
         email: joi.string().email().required(),
         password: joi.string().required(),
@@ -65,5 +67,15 @@ export async function loginUsers(req, res){
             res.sendStatus(401)
             return
         } 
+        await connection.query(
+            `INSERT INTO tokens (
+                token, "userId", "expireAt"
+                ) 
+                VALUES(
+                '${token}',
+                '${user[0].id}',
+                '${expireToken}'
+                ) `
+        )
       res.status(200).send(token) 
 }
