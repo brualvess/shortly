@@ -37,3 +37,26 @@ export async function shortenUrl(req, res){
             res.sendStatus(500)
         }    
 }
+
+export async function listUrlId(req, res){
+    const id = parseInt(req.params.id)
+    
+    try{
+        const {rows:url} = await connection.query(
+            `SELECT * FROM "shortUrl" WHERE id = '${id}'`
+            )
+            if(url[0]){
+                res.status(200).send(
+                    {
+                        "id": id,
+                        "shortUrl": url[0].key,
+                        "url": url[0].url
+                    }
+                )
+            }else{
+                res.sendStatus(404)
+            }
+    }catch{
+        res.sendStatus(500)
+    }
+}
