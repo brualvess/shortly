@@ -3,7 +3,9 @@ import { createUsers,
          loginUsers
 } from './controllers/usersControllers.js';
 import { shortenUrl,
-         listUrlId
+         listUrlId,
+         redirectUrl,
+         deleteUrl
  } from './controllers/urlsControllers.js';
 
 const router = Router()
@@ -14,7 +16,8 @@ router.post('/signin',loginUsers )
 // url routes
 router.post('/urls/shorten', shortenUrl)
 router.get('/urls/:id', listUrlId)
-
+router.get('/urls/open/:shortUrl', redirectUrl)
+router.delete('/urls/:id', deleteUrl)
 
 
 export default router

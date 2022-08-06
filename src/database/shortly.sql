@@ -14,14 +14,25 @@ CREATE TABLE tokens(
 	CONSTRAINT "tokens_pk" PRIMARY KEY ("id")
 );
 
-ALTER TABLE "tokens" ADD CONSTRAINT "tokens_fk0" FOREIGN KEY ("userId") REFERENCES "users"("id");
-
 CREATE TABLE "shortUrl" (
 	"id" serial NOT NULL,
 	"url" TEXT NOT NULL,
 	"key" TEXT NOT NULL,
+	"userId" bigint NOT NULL,
 	CONSTRAINT "shortUrl_pk" PRIMARY KEY ("id")
 );
+
+CREATE TABLE visits (
+	"id" serial NOT NULL,
+	"urlId" integer NOT NULL,
+	"visitDate" TIMESTAMP NOT NULL,
+	CONSTRAINT "visits_pk" PRIMARY KEY ("id")
+);
+
+
+ALTER TABLE "tokens" ADD CONSTRAINT "tokens_fk0" FOREIGN KEY ("userId") REFERENCES "users"("id");
+ALTER TABLE "shortUrl" ADD CONSTRAINT "shortUrl_fk0" FOREIGN KEY ("userId") REFERENCES "users"("id");
+ALTER TABLE "visits" ADD CONSTRAINT "visits_fk0" FOREIGN KEY ("urlId") REFERENCES "shortUrl"("id");
 
 
 
