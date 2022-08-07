@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
 export async function createUsers(req, res) {
     const datas = req.body
+    const createdAt = dayjs().format('DD/MM/YYYY')
     const schemaUser = joi.object({
         name: joi.string().required(),
         email: joi.string().email().required(),
@@ -22,11 +23,13 @@ export async function createUsers(req, res) {
             `INSERT INTO users (
             name,
             email, 
-            password) 
+            password,
+            "createdAt") 
          VALUES (
             '${datas.name}',
             '${datas.email}',
-            '${passwordCrip}'
+            '${passwordCrip}',
+            '${createdAt}'
              )`
         )
         res.sendStatus(201)
@@ -44,6 +47,7 @@ export async function loginUsers(req, res) {
     const datas = req.body
     const token = uuid();
     const expireToken = dayjs().add(30, 'day')
+    const createdAt = dayjs().format('DD/MM/YYYY')
     const schemaUser = joi.object({
         email: joi.string().email().required(),
         password: joi.string().required(),
@@ -69,12 +73,13 @@ export async function loginUsers(req, res) {
     }
     await connection.query(
         `INSERT INTO tokens (
-                token, "userId", "expireAt"
+                token, "userId", "expireAt", "createdAt"
                 ) 
                 VALUES(
                 '${token}',
                 '${user[0].id}',
-                '${expireToken}'
+                '${expireToken}',
+                '${createdAt}'
                 ) `
     )
     res.status(200).send(token)

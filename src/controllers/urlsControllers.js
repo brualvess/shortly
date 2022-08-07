@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 export async function shortenUrl(req, res) {
     const url = req.body
     const { authorization } = req.headers;
+    const createdAt = dayjs().format('DD/MM/YYYY')
     const schemaUrl = joi.object({
         url: joi.string().uri()
     })
@@ -29,7 +30,8 @@ export async function shortenUrl(req, res) {
                     VALUES(
                     '${url.url}',
                     '${shortUrl}',
-                    '${token[0].userId}'
+                    '${token[0].userId}',
+                    '${createdAt}'
                     ) `
         )
         res.status(201).send({
