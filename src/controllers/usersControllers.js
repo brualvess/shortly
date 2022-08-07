@@ -26,11 +26,12 @@ export async function createUsers(req, res) {
             password,
             "createdAt") 
          VALUES (
-            '${datas.name}',
-            '${datas.email}',
-            '${passwordCrip}',
-            '${createdAt}'
-             )`
+            $1,$2,$3,$4
+             )`,
+            [datas.name,
+            datas.email,
+            passwordCrip,
+            createdAt]
         )
         res.sendStatus(201)
     } catch (error) {
@@ -58,7 +59,7 @@ export async function loginUsers(req, res) {
         return
     }
     const { rows: user } = await connection.query(
-        `SELECT * FROM users WHERE email = '${datas.email}'`
+        `SELECT * FROM users WHERE email = $1`, [datas.email]
     )
     if (!user[0]) {
         res.sendStatus(401)
@@ -73,14 +74,15 @@ export async function loginUsers(req, res) {
     }
     await connection.query(
         `INSERT INTO tokens (
-                token, "userId", "expireAt", "createdAt"
+                token, "userId", "expireAt", "createdAt" 
                 ) 
                 VALUES(
-                '${token}',
-                '${user[0].id}',
-                '${expireToken}',
-                '${createdAt}'
-                ) `
+                $1, $2, $3, $4
+                )`
+        [token,
+        user[0].id,
+        expireToken,
+        createdAt]
     )
     res.status(200).send(token)
 }
@@ -94,7 +96,7 @@ export async function listUsers(req, res) {
         return
     }
     try {
-       const { rows: object } = await connection.query(
+        const { rows: object } = await connection.query(
             `
             SELECT users.id, users.name, COUNT(v.*) AS "visitCount", 
             "shortUrl".id AS i, "shortUrl".url, "shortUrl".key,
@@ -104,12 +106,13 @@ export async function listUsers(req, res) {
             ON users.id = "shortUrl"."userId"
             LEFT JOIN visits v
             ON "shortUrl".id = v."urlId"
-            WHERE users.id = ${token[0].userId}
+            WHERE users.id = $1
             GROUP BY users.id, "shortUrl".id
-            `
+            `,
+            [token[0].userId]
         )
         const newArray = []
-        for (let i = 0; i < object.length; i++){
+        for (let i = 0; i < object.length; i++) {
             const obj = object[i]
             newArray.push({
                 "id": obj.i,
@@ -118,7 +121,7 @@ export async function listUsers(req, res) {
                 "visitCount": obj.visitCount
             })
         }
-       const newObject = {
+        const newObject = {
             "id": object[0].id,
             "name": object[0].name,
             "visitCount": object[0].sum,
@@ -127,7 +130,7 @@ export async function listUsers(req, res) {
 
         res.status(200).send(newObject)
 
-    } catch(error) {
+    } catch (error) {
         console.log(error)
         res.sendStatus(500)
     }

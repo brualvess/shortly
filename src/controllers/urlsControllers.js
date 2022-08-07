@@ -28,11 +28,17 @@ export async function shortenUrl(req, res) {
                     url, key, "userId"
                     ) 
                     VALUES(
-                    '${url.url}',
-                    '${shortUrl}',
-                    '${token[0].userId}',
-                    '${createdAt}'
-                    ) `
+                    $1,
+                    $2,
+                    $3,
+                    $4
+                    )`,
+                    [
+                        url.url,
+                        shortUrl,
+                        token[0].userId,
+                        createdAt
+                    ]
         )
         res.status(201).send({
             "shortUrl": shortUrl
@@ -77,9 +83,13 @@ export async function redirectUrl(req, res) {
                             "urlId", "visitDate"
                             ) 
                             VALUES(
-                            '${url[0].id}',
-                            '${visitDate}'
-                            ) `
+                            $1,
+                            $2
+                            ) `,
+                            [
+                                url[0].id,
+                                visitDate
+                            ]
             )
             res.redirect(url[0].url)
         } else {
@@ -103,16 +113,16 @@ export async function deleteUrl(req, res) {
     }
     try {
         const { rows: idUser } = await connection.query(
-            `SELECT * FROM "shortUrl" WHERE id = ${id}`
+            `SELECT * FROM "shortUrl" WHERE id = $1`,[id]
         )
         if (!idUser[0]) {
             res.sendStatus(404)
         } else if (token[0].userId == idUser[0].userId) {
             await connection.query(
-                `DELETE FROM visits WHERE "urlId" = ${id}`
+                `DELETE FROM visits WHERE "urlId" = $1`,[id]
             )
             await connection.query(
-                `DELETE FROM "shortUrl" WHERE id = ${id}`
+                `DELETE FROM "shortUrl" WHERE id = $1`,[id]
             )
             res.sendStatus(204)
         } else {
