@@ -8,6 +8,7 @@ import { shortenUrl,
          redirectUrl,
          deleteUrl
  } from './controllers/urlsControllers.js';
+ import { ranking } from './controllers/rankingControllers.js';
 
 const router = Router()
 
@@ -20,6 +21,8 @@ router.post('/urls/shorten', shortenUrl)
 router.get('/urls/:id', listUrlId)
 router.get('/urls/open/:shortUrl', redirectUrl)
 router.delete('/urls/:id', deleteUrl)
+// rankikng routes
+router.get('/ranking', ranking)
 
 
 export default router
