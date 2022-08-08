@@ -78,7 +78,7 @@ export async function loginUsers(req, res) {
                 ) 
                 VALUES(
                 $1, $2, $3, $4
-                )`
+                )`,
         [token,
         user[0].id,
         expireToken,
@@ -88,6 +88,11 @@ export async function loginUsers(req, res) {
 }
 export async function listUsers(req, res) {
     const { authorization } = req.headers;
+
+    if(!authorization){
+        res.sendStatus(401)
+        return
+    }
     const { rows: token } = await connection.query(
         `SELECT * FROM tokens WHERE token = '${authorization.slice(7)}'`
     )

@@ -14,6 +14,10 @@ export async function shortenUrl(req, res) {
         res.status(422).send(error)
         return
     }
+    if(!authorization){
+        res.sendStatus(401)
+        return
+    }
     const { rows: token } = await connection.query(
         `SELECT * FROM tokens WHERE token = '${authorization.slice(7)}'`
     )
@@ -25,7 +29,7 @@ export async function shortenUrl(req, res) {
         const shortUrl = nanoid(7)
         await connection.query(
             `INSERT INTO "shortUrl" (
-                    url, key, "userId"
+                    url, key, "userId", "createdAt"
                     ) 
                     VALUES(
                     $1,
@@ -104,6 +108,11 @@ export async function redirectUrl(req, res) {
 export async function deleteUrl(req, res) {
     const { authorization } = req.headers;
     const id = parseInt(req.params.id)
+
+    if(!authorization){
+        res.sendStatus(401)
+        return
+    }
     const { rows: token } = await connection.query(
         `SELECT * FROM tokens WHERE token = '${authorization.slice(7)}'`
     )
@@ -111,6 +120,7 @@ export async function deleteUrl(req, res) {
         res.sendStatus(401)
         return
     }
+    
     try {
         const { rows: idUser } = await connection.query(
             `SELECT * FROM "shortUrl" WHERE id = $1`,[id]
